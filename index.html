@@ -569,91 +569,6 @@
       color: var(--text-muted);
     }
 
-    /* ============================================================
-       APPLICATION FORM
-       ============================================================ */
-    .application-form {
-      max-width: 480px;
-      margin: 0 auto;
-      text-align: left;
-    }
-    .form-group {
-      margin-bottom: 16px;
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .application-form label {
-      display: block;
-      font-family: var(--font-display);
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-      letter-spacing: 0.02em;
-    }
-    .application-form input,
-    .application-form select {
-      width: 100%;
-      padding: 12px 16px;
-      font-family: var(--font-body);
-      font-size: 15px;
-      color: var(--text-primary);
-      background: var(--bg-code);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .application-form input::placeholder {
-      color: var(--text-muted);
-    }
-    .application-form input:focus,
-    .application-form select:focus {
-      border-color: var(--accent-purple);
-      box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
-    }
-    .application-form select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23767692' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 16px center;
-      padding-right: 40px;
-      cursor: pointer;
-    }
-    .application-form select option {
-      background: var(--bg);
-      color: var(--text-primary);
-    }
-    .form-submit {
-      width: 100%;
-      justify-content: center;
-      margin-top: 8px;
-    }
-    .form-submit:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .form-status {
-      margin-top: 12px;
-      font-size: 14px;
-      text-align: center;
-      min-height: 20px;
-    }
-    .form-status.success {
-      color: var(--accent-green);
-    }
-    .form-status.error {
-      color: var(--accent-pink);
-    }
-    @media (max-width: 480px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
 
     /* ============================================================
        FOOTER
@@ -1280,42 +1195,16 @@
         </p>
       </div>
 
-      <!-- Application Form (pre-registration only) -->
-      <form id="applicationForm" class="application-form" data-backend="http://localhost:8080" method="POST">
-        <div class="form-group">
-          <label for="formName">Ваше имя *</label>
-          <input type="text" id="formName" name="name" required placeholder="Как к вам обращаться?" autocomplete="name">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="formPhone">Телефон</label>
-            <input type="tel" id="formPhone" name="phone" placeholder="+7 (999) 123-45-67" autocomplete="tel">
-          </div>
-          <div class="form-group">
-            <label for="formTelegram">Telegram</label>
-            <input type="text" id="formTelegram" name="telegram" placeholder="@username" autocomplete="off">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="formCourse">Что интересует?</label>
-          <select id="formCourse" name="course">
-            <option value="">Выберите вариант</option>
-            <option value="Промпт-инжиниринг">Промпт-инжиниринг</option>
-            <option value="AI-агенты">AI-агенты</option>
-            <option value="Автоматизация">Автоматизация</option>
-            <option value="Всё интересует">Всё интересует</option>
-            <option value="Просто хочу знать о запуске">Просто хочу знать о запуске</option>
-          </select>
-        </div>
-        <button type="submit" class="cta-button form-submit" id="submitBtn">
-          ✦ Узнаться первым
+      <!-- Contact CTA (static — no form backend needed) -->
+      <div style="max-width:480px;margin:0 auto;">
+        <a href="https://t.me/YoulianVR" target="_blank" rel="noopener" class="cta-button" style="width:100%;justify-content:center;text-decoration:none;">
+          ✦ Написать в Telegram
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-        </button>
-        <p class="form-status" id="formStatus" aria-live="polite"></p>
-        <p class="cta-note">Бесплатно — без карты, без обязательств. Или напишите сразу: <a href="https://t.me/YoulianVR" target="_blank" rel="noopener">@YoulianVR</a> в Telegram</p>
-      </form>
+        </a>
+        <p class="cta-note" style="margin-top:16px;">Бесплатно — без карты, без обязательств.<br>Или напишите на <a href="mailto:youlianvr@gmail.com" style="color:var(--text-muted);">youlianvr@gmail.com</a></p>
+      </div>
     </div>
   </section>
 
@@ -1399,53 +1288,6 @@
         });
       });
 
-      // — Application form
-      const form = document.getElementById('applicationForm');
-      const submitBtn = document.getElementById('submitBtn');
-      const statusEl = document.getElementById('formStatus');
-
-      if (form) {
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-
-          submitBtn.disabled = true;
-          submitBtn.innerHTML = 'Отправка...';
-          statusEl.textContent = '';
-          statusEl.className = 'form-status';
-
-          const formData = new FormData(form);
-          const data = new URLSearchParams(formData).toString();
-
-          // URL бэкенда — из data-backend атрибута формы
-          const backend = form.dataset.backend || 'http://localhost:8080';
-          const formAction = backend + '/submit';
-
-          try {
-            const resp = await fetch(formAction, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: data
-            });
-
-            const result = await resp.json();
-
-            if (result.ok) {
-              statusEl.textContent = result.message || 'Контакт сохранён! Сообщим о запуске.';
-              statusEl.className = 'form-status success';
-              form.reset();
-            } else {
-              statusEl.textContent = result.error || 'Ошибка отправки';
-              statusEl.className = 'form-status error';
-            }
-          } catch (err) {
-            statusEl.textContent = 'Сервер недоступен. Напишите в Telegram: @YoulianVR';
-            statusEl.className = 'form-status error';
-          } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '✦ Отправить заявку <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-          }
-        });
-      }
 
     })();
   </script>
