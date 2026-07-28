@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="ru" style="color-scheme: dark;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0B14">
+  <title>AI-решения для бизнеса — курс по промпт-инжинирингу и автоматизации</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+       ============================================================ */
+    :root {
+      --bg: #0B0B14;
+      --bg-elevated: #12121E;
+      --bg-code: #080810;
+      --bg-card: #161622;
+      --text-primary: #E8E8F0;
+      --text-secondary: #767692;
+      --text-muted: #4A4A60;
+      --accent-purple: #7C5CFC;
+      --accent-cyan: #00E5FF;
+      --accent-pink: #FF3377;
+      --accent-green: #3AD69B;
+      --border: #1E1E30;
+      --border-hover: #2E2E48;
+      --font-display: 'JetBrains Mono', monospace;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --max-width: 1100px;
+      --content-width: 680px;
+    }
+
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; scroll-padding-top: 80px; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.7;
+      overflow-x: hidden;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    ::selection {
+      background: rgba(124, 92, 252, 0.35);
+      color: #fff;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: var(--accent-cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ============================================================
+       UTILITY — container
+       ============================================================ */
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .content-narrow {
+      max-width: var(--content-width);
+      margin: 0 auto;
+    }
+
+    /* ============================================================
+       NAV
+       ============================================================ */
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background: rgba(11, 11, 20, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .site-nav.scrolled {
+      border-bottom-color: var(--border);
+    }
+    .site-nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .nav-logo span {
+      color: var(--accent-purple);
+    }
+    .nav-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: rgba(124, 92, 252, 0.1);
+      text-decoration: none;
+    }
+    .nav-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .nav-link.green {
+      color: var(--accent-green);
+      background: rgba(58, 214, 155, 0.08);
+      border: 1px solid rgba(58, 214, 155, 0.15);
+    }
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+    .hero {
+      padding: 160px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: 50%;
+      width: 800px;
+      height: 800px;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(124,92,252,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .hero h1 {
+      text-wrap: balance;
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      max-width: 900px;
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.6;
+    }
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 32px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+    }
+    .hero-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ============================================================
+       SECTION common
+       ============================================================ */
+    section {
+      padding: 80px 0;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .section-header {
+      margin-bottom: 48px;
+    }
+    .section-number {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-pink);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .section-number .num {
+      font-size: 20px;
+      margin-right: 4px;
+    }
+    .section-header h2 {
+      text-wrap: balance;
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .section-header p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    /* ============================================================
+       INTRO
+       ============================================================ */
+    .intro-text {
+      font-size: 17px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    .intro-text p {
+      margin-bottom: 20px;
+    }
+    .intro-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .intro-highlight {
+      background: linear-gradient(135deg, rgba(124,92,252,0.1), rgba(0,229,255,0.06));
+      border: 1px solid rgba(124,92,252,0.2);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin: 32px 0;
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .intro-highlight strong {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* ============================================================
+       ERROR SECTION layout
+       ============================================================ */
+    .error-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .error-text {
+      position: sticky;
+      top: 80px;
+    }
+    .error-text .label {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-pink);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .error-text h3 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+    }
+    .error-text p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .error-text p strong {
+      color: var(--text-primary);
+    }
+    .error-text .example-label {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    /* ============================================================
+       CODE WINDOW
+       ============================================================ */
+    .code-window {
+      position: relative;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .code-window:hover {
+      border-color: var(--border-hover);
+    }
+    .code-window::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      padding: 1px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+    .code-window:hover::before {
+      opacity: 0.5;
+    }
+
+    /* — title bar */
+    .code-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8, 8, 16, 0.6);
+    }
+    .code-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .code-dot:nth-child(1) { background: #FF5F56; }
+    .code-dot:nth-child(2) { background: #FFBD2E; }
+    .code-dot:nth-child(3) { background: #27C93F; }
+    .code-titlebar .filename {
+      margin-left: 8px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* — tabs */
+    .code-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+      position: relative;
+      outline: none;
+    }
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent-purple);
+      transform: scaleX(0);
+      transition: transform 0.25s;
+    }
+    .tab-btn:hover {
+      color: var(--text-secondary);
+      background: rgba(124, 92, 252, 0.04);
+    }
+    .tab-btn.active {
+      color: var(--text-primary);
+    }
+    .tab-btn.active::after {
+      transform: scaleX(1);
+    }
+    .tab-btn:focus-visible {
+      outline: 2px solid var(--accent-purple);
+      outline-offset: -2px;
+    }
+    .tab-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    .tab-badge.bad {
+      background: rgba(255, 51, 119, 0.15);
+      color: var(--accent-pink);
+    }
+    .tab-badge.good {
+      background: rgba(58, 214, 155, 0.15);
+      color: var(--accent-green);
+    }
+
+    /* — code content */
+    .code-content {
+      position: relative;
+      min-height: 220px;
+    }
+    .code-block {
+      display: none;
+      padding: 20px 24px;
+      font-family: var(--font-display);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .code-block.active {
+      display: block;
+      animation: fade-code 0.25s ease;
+    }
+    @keyframes fade-code {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* — syntax highlight */
+    .kw   { color: #FF79C6; }  /* keywords */
+    .str  { color: #F1FA8C; }  /* strings */
+    .cm   { color: #6272A4; }  /* comments */
+    .fn   { color: #50FA7B; }  /* functions */
+    .num  { color: #BD93F9; }  /* numbers */
+    .op   { color: #FF79C6; }  /* operators */
+    .dec  { color: #50FA7B; }  /* decorators */
+    .path { color: #8BE9FD; }  /* file paths / args */
+    .err-highlight { color: var(--accent-pink); }
+    .dim  { color: var(--text-muted); }
+
+    /* ============================================================
+       CTA SECTION
+       ============================================================ */
+    .cta-section {
+      padding: 100px 0 80px;
+      text-align: center;
+      position: relative;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 600px;
+      height: 1px;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
+    }
+    .cta-section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .cta-section .sub {
+      max-width: 520px;
+      margin: 0 auto 32px;
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .cta-list {
+      display: inline-grid;
+      grid-template-columns: auto auto;
+      gap: 12px 32px;
+      margin: 0 auto 40px;
+      text-align: left;
+      font-size: 15px;
+    }
+    .cta-list-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+    }
+    .cta-list-item::before {
+      content: '→';
+      color: var(--accent-cyan);
+      font-family: var(--font-display);
+      font-weight: 600;
+    }
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 16px 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-purple), #6A4AE0);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cta-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(124, 92, 252, 0.3);
+      text-decoration: none;
+    }
+    .cta-button:active {
+      transform: translateY(0);
+    }
+    .cta-note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ============================================================
+       APPLICATION FORM
+       ============================================================ */
+    .application-form {
+      max-width: 480px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .application-form label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+    .application-form input,
+    .application-form select {
+      width: 100%;
+      padding: 12px 16px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--text-primary);
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .application-form input::placeholder {
+      color: var(--text-muted);
+    }
+    .application-form input:focus,
+    .application-form select:focus {
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+    }
+    .application-form select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23767692' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+    .application-form select option {
+      background: var(--bg);
+      color: var(--text-primary);
+    }
+    .form-submit {
+      width: 100%;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .form-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .form-status {
+      margin-top: 12px;
+      font-size: 14px;
+      text-align: center;
+      min-height: 20px;
+    }
+    .form-status.success {
+      color: var(--accent-green);
+    }
+    .form-status.error {
+      color: var(--accent-pink);
+    }
+    @media (max-width: 480px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 800px) {
+      .error-layout {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      .error-text {
+        position: static;
+      }
+      .hero {
+        padding: 120px 0 56px;
+      }
+      section {
+        padding: 56px 0;
+      }
+      .cta-list {
+        grid-template-columns: 1fr;
+      }
+      .code-block {
+        font-size: 12px;
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 26px;
+      }
+      .hero-meta {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .tab-btn {
+        font-size: 11px;
+        padding: 8px 12px;
+      }
+      .code-titlebar .filename {
+        font-size: 10px;
+      }
+      .cta-button {
+        width: 100%;
+        justify-content: center;
+      }
+      .nav-actions {
+        gap: 4px;
+      }
+      .nav-link {
+        font-size: 11px;
+        padding: 5px 10px;
+      }
+      .nav-link.green {
+        display: none;
+      }
+    }
+
+    /* ============================================================
+       REDUCED MOTION
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      section { opacity: 1 !important; transform: none !important; transition: none !important; }
+      .code-block.active { animation: none !important; }
+      .hero-badge::before { animation: none !important; }
+    }
+
+    /* ============================================================
+       SKIP LINK
+       ============================================================ */
+    .skip-link {
+      position: fixed;
+      top: 8px;
+      left: 8px;
+      z-index: 200;
+      padding: 10px 20px;
+      background: var(--accent-purple);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 6px;
+      text-decoration: none;
+      transform: translateY(-120%);
+      transition: transform 0.2s;
+    }
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    /* ============================================================
+       KEYBOARD FOCUS
+       ============================================================ */
+    :focus-visible {
+      outline: 2px solid var(--accent-purple);
+      outline-offset: 2px;
+    }
+    </style>
+  </head>
+<body>
+
+  <!-- Skip link -->
+  <a href="#intro" class="skip-link">К содержанию</a>
+
+  <!-- ============================================================
+       NAV
+       ============================================================ -->
+  <nav class="site-nav" id="siteNav">
+    <div class="container">
+      <div class="nav-logo"><span>✦</span> prompt.<span>ing</span></div>
+      <div class="nav-actions"><a class="nav-link green" href="ai-course-portfolio/free-preview/index.html">Бесплатный урок</a><a class="nav-link" href="#cta">К курсу</a></div>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+       ============================================================ -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-badge">Курс · 2026</div>
+      <h1>
+        AI-решения для бизнеса<br>
+        <span class="highlight">без программирования</span>
+      </h1>
+      <p>Научитесь создавать ботов, автоматизировать рутину и зарабатывать на AI-услугах. Без Python, без теории на 40 минут — только практика и готовые проекты.</p>
+      <div class="hero-meta">
+        <span>◷ 7 недель</span>
+        <span>⌥ 4 модуля</span>
+        <span>⎯ 3-5 проектов в портфолио</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       INTRO
+       ============================================================ -->
+  <section id="intro">
+    <div class="container content-narrow">
+      <div class="intro-text">
+        <p>
+          <strong>Честно:</strong> информацию о промпт-инжиниринге можно найти бесплатно.
+          Документация OpenAI, курсы на DeepLearning.AI, статьи на Хабре — всё в открытом доступе.
+        </p>
+        <p>
+          Тогда зачем этот курс? Потому что <strong>информация ≠ навык</strong>. Вы можете прочитать 100 статей
+          о плавании, но всё равно утонете, пока не прыгнете в воду.
+        </p>
+
+        <div class="intro-highlight">
+          <strong>Что даёт этот курс:</strong>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Структуру — от базы до агентов за 7 недель</li>
+            <li>Практику — 3-5 готовых проектов для портфолио</li>
+            <li>Поддержку — чат с обратной связью от автора</li>
+            <li>Честность — без завышенных обещаний</li>
+          </ul>
+        </div>
+
+        <p>
+          <strong>Для кого этот курс:</strong>
+        </p>
+        <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Предприниматели, которые хотят автоматизировать рутину</li>
+            <li>Маркетологи, которым нужно генерировать контент</li>
+            <li>Фрилансеры, которые хотят добавить AI-услуги в портфолио</li>
+            <li>Новички, которые хотят разобраться в AI</li>
+          </ul>
+        </p>
+
+        <p>
+          <strong>Реальные затраты (честно):</strong>
+        </p>
+        <ul style="margin-top: 8px; padding-left: 20px;">
+          <li>VPN: $2-5/мес (обязательно для ChatGPT, Claude)</li>
+          <li>API: $0-10/мес (зависит от объёма)</li>
+          <li>Make.com: $0-9/мес (бесплатный тариф хватит для старта)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ERROR 1 — Context
+       ============================================================ -->
+  <section class="error-section" id="error-1">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-number"><span class="num">01</span> МОДУЛЬ</span>
+        <h2>Основы промпт-инжиниринга</h2>
+        <p>Вы, вероятно, уже знаете базу: «будь конкретным», «указывай формат». Но есть нюансы, которые реально меняют качество ответов.</p>
+      </div>
+      <div class="error-layout">
+        <div class="error-text">
+          <h3>Контекст, формат, цепочки — основа основ</h3>
+          <p>
+            На этом модуле вы научитесь:
+          </p>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+              <li>Давать модели правильный контекст</li>
+              <li>Указывать формат ответа</li>
+              <li>Разбивать сложные задачи на шаги</li>
+              <li>Использовать негативные инструкции</li>
+          </ul>
+          <p>
+            Это база, которую знают не все. Большинство людей до сих пор пишут:
+            <strong>«сделай код для парсера»</strong> — и получают результат «ну такое».
+          </p>
+          <p class="example-label">▼ Попробуй сам — переключай табы</p>
+        </div>
+        <div class="code-window">
+          <div class="code-titlebar">
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="filename">prompt-comparison.py</span>
+          </div>
+          <div class="code-tabs" role="tablist">
+            <button class="tab-btn active" role="tab" aria-selected="true">
+              Плохо <span class="tab-badge bad">✕</span>
+            </button>
+            <button class="tab-btn" role="tab" aria-selected="false">
+              Хорошо <span class="tab-badge good">✓</span>
+            </button>
+          </div>
+          <div class="code-content">
+            <pre class="code-block active"><span class="cm"># Запрос без контекста — угадайка</span>
+
+<span class="kw">Напиши</span> код парсера для Twitter.
+
+<span class="cm"># Модель выдаст tutorial 2019 года</span>
+<span class="cm"># с устаревшей библиотекой и без обработки ошибок</span>
+<span class="dim"># Результат: 5-7 итераций уточнений</span></pre>
+            <pre class="code-block"><span class="cm"># Контекстный запрос — рабочий код с первой попытки</span>
+
+<span class="kw">У меня есть</span> API-ключ Twitter v2.
+<span class="kw">Стек:</span> <span class="fn">Python</span> 3.12, <span class="fn">aiohttp</span>.
+<span class="kw">Задача:</span> собрать 50 твитов по <span class="str">"Bitcoin"</span>
+за последние 24 часа. Результат — JSON-файл.
+<span class="kw">Важно:</span> не использовать платные эндпоинты.
+<span class="kw">Дай</span> скрипт с обработкой rate limit.
+
+<span class="cm"># Модель знает стек, формат, ограничения</span>
+<span class="cm"># Результат: рабочий код с первого раза</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       MODULE 2 — AI Agents
+       ============================================================ -->
+  <section class="error-section" id="error-2">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-number"><span class="num">02</span> МОДУЛЬ</span>
+        <h2>AI-агенты: автоматизация без кода</h2>
+        <p>Агенты — это не «чуть более умный чат-бот». Это система, которая получает цель и сама решает, как до неё дойти.</p>
+      </div>
+      <div class="error-layout">
+        <div class="error-text">
+          <h3>Чат-бот vs Агент: разница как у такси и шофёра</h3>
+          <p>
+            <strong>Чат-бот</strong> отвечает на вопросы. Ты спросил — он ответил.
+            Ты снова спросил — он снова ответил. Вся работа на тебе.
+          </p>
+          <p>
+            <strong>Агент</strong> получает цель и сам решает, как до неё дойти.
+            Он планирует, использует инструменты (браузер, почта, CRM),
+            проверяет результат, исправляет ошибки. Ты — только ставишь задачу.
+          </p>
+          <p>
+            <strong>Реальные кейсы:</strong>
+            <ul style="margin-top: 8px; padding-left: 20px;">
+              <li>Бот поддержки: снижает тикеты на 70%</li>
+              <li>Генератор контента: x2 объём статей, -85 часов/мес</li>
+              <li>Ассистент продаж: конверсия 40%+, -70% трудозатрат</li>
+            </ul>
+          </p>
+          <p class="example-label">▼ Вот что агенты уже умеют</p>
+        </div>
+        <div class="code-window">
+          <div class="code-titlebar">
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="filename">agent-comparison.py</span>
+          </div>
+          <div class="code-tabs" role="tablist">
+            <button class="tab-btn active" role="tab" aria-selected="true">
+              Чат-бот <span class="tab-badge bad">✕</span>
+            </button>
+            <button class="tab-btn" role="tab" aria-selected="false">
+              Агент <span class="tab-badge good">✓</span>
+            </button>
+          </div>
+          <div class="code-content">
+            <pre class="code-block active"><span class="cm"># Чат-бот: ты управляешь каждым шагом</span>
+
+<span class="kw">Задача:</span> «Найди 10 лидов в FinTech»
+
+<span class="cm"># Ты сам:</span>
+<span class="dim">1. Открываешь LinkedIn</span>
+<span class="dim">2. Копируешь email-адреса</span>
+<span class="dim">3. Вбиваешь в CRM</span>
+<span class="dim">4. Пишешь письмо каждому</span>
+<span class="dim">5. Проверяешь ошибки</span>
+<span class="dim">6. Отправляешь</span>
+<span class="dim"># Время: 3-4 часа</span></pre>
+            <pre class="code-block"><span class="cm"># Агент: сам ищет, парсит, пишет, проверяет</span>
+
+<span class="kw">Агенту:</span> «Найди 10 лидов в FinTech»
+
+<span class="cm"># Агент делает:</span>
+<span class="dim">1. Ищет в LinkedIn / Crunchbase</span>
+<span class="dim">2. Парсит контакты</span>
+<span class="dim">3. Проверяет актуальность</span>
+<span class="dim">4. Генерирует персонализированные письма</span>
+<span class="dim">5. Отправляет через CRM</span>
+<span class="cm"># Ты: ждёшь готовый отчёт</span>
+<span class="dim"># Время: 15-20 минут</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       MODULE 3 — Automation
+       ============================================================ -->
+  <section class="error-section" id="error-3">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-number"><span class="num">03</span> МОДУЛЬ</span>
+        <h2>Автоматизация: Make.com, Zapier, API</h2>
+        <p>Связываем сервисы без кода: CRM + Telegram + почта + AI. Один workflow заменяет 3 часа ручной работы.</p>
+      </div>
+      <div class="error-layout">
+        <div class="error-text">
+          <h3>От бота к бизнес-процессу</h3>
+          <p>
+            Бот — это только начало. Настоящая ценность — когда бот работает в связке:
+          </p>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Клиент пишет боту</li>
+            <li>Бот квалифицирует лид</li>
+            <li>Данные уходят в CRM</li>
+            <li>Менеджер получает уведомление</li>
+            <li>Отчёт формируется автоматически</li>
+          </ul>
+          <p style="margin-top: 16px;">
+            <strong>Что вы научитесь делать:</strong>
+          </p>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Настраивать workflow в Make.com</li>
+            <li>Связывать API без кода</li>
+            <li>Автоматизировать рутинные задачи</li>
+            <li>Экономить 3-4 часа в неделю</li>
+          </ul>
+          <p class="example-label">▼ Вот что можно автоматизировать</p>
+        </div>
+        <div class="code-window">
+          <div class="code-titlebar">
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="filename">workflow-example.py</span>
+          </div>
+          <div class="code-tabs" role="tablist">
+            <button class="tab-btn active" role="tab" aria-selected="true">
+              Без автоматизации <span class="tab-badge bad">✕</span>
+            </button>
+            <button class="tab-btn" role="tab" aria-selected="false">
+              С автоматизацией <span class="tab-badge good">✓</span>
+            </button>
+          </div>
+          <div class="code-content">
+            <pre class="code-block active"><span class="cm"># Ручная работа: каждый день одно и то же</span>
+
+<span class="kw">Каждое утро:</span>
+<span class="dim">1. Открываешь почту</span>
+<span class="dim">2. Копируешь данные в CRM</span>
+<span class="dim">3. Пишешь ответы клиентам</span>
+<span class="dim">4. Формируешь отчёт в Excel</span>
+<span class="dim">5. Отправляешь руководителю</span>
+<span class="cm"># Время: 2-3 часа каждый день</span></pre>
+            <pre class="code-block"><span class="cm"># Make.com: один workflow — всё автоматически</span>
+
+<span class="kw">Workflow:</span>
+<span class="fn">Триггер:</span> новое письмо от клиента
+<span class="fn">→</span> AI анализирует запрос
+<span class="fn">→</span> Создаёт задачу в CRM
+<span class="fn">→</span> Генерирует ответ
+<span class="fn">→</span> Отправляет клиенту
+<span class="fn">→</span> Обновляет отчёт
+<span class="cm"># Время: 0 секунд (всё автоматически)</span>
+<span class="dim"># Ты: контролируешь, а не делаешь</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       MODULE 4 — Sales & Clients
+       ============================================================ -->
+  <section class="error-section" id="error-4">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-number"><span class="num">04</span> МОДУЛЬ</span>
+        <h2>Поиск клиентов и продажа AI-услуг</h2>
+        <p>Как найти первых клиентов, сформировать портфолио и продавать AI-решения без страха.</p>
+      </div>
+      <div class="error-layout">
+        <div class="error-text">
+          <h3>От портфолио до первого дохода</h3>
+          <p>
+            <strong>Что вы будете делать:</strong>
+          </p>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+              <li>Создадите 3-5 готовых проектов для портфолио</li>
+              <li>Научитесь искать клиентов (холодный аутрич, Telegram, фриланс)</li>
+              <li>Сформируете цены и оффер</li>
+              <li>Разберёте юридические вопросы (самозанятость, договоры)</li>
+          </ul>
+          <p style="margin-top: 16px;">
+            <strong>Честно о результатах:</strong>
+          </p>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+              <li>Средний чек за AI-интеграцию: 50 000 – 80 000 ₽</li>
+              <li>Конверсия холодных сообщений: 1-5%</li>
+              <li>50 сообщений — тест ниши</li>
+              <li>Если 0 ответов после 50 — сменить нишу</li>
+          </ul>
+          <p class="example-label">▼ Реальные кейсы из практики</p>
+        </div>
+        <div class="code-window">
+          <div class="code-titlebar">
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="filename">client-outreach.py</span>
+          </div>
+          <div class="code-tabs" role="tablist">
+            <button class="tab-btn active" role="tab" aria-selected="true">
+              Без системы <span class="tab-badge bad">✕</span>
+            </button>
+            <button class="tab-btn" role="tab" aria-selected="false">
+              С системой <span class="tab-badge good">✓</span>
+            </button>
+          </div>
+          <div class="code-content">
+            <pre class="code-block active"><span class="cm"># Без системы: случайные попытки</span>
+
+<span class="kw">День 1:</span> написал 5 людям в Telegram
+<span class="cm"># Ответы: 0</span>
+
+<span class="kw">День 3:</span> написал 10 в WhatsApp
+<span class="cm"># Ответы: 1 («не интересно»)</span>
+
+<span class="kw">День 7:</span> сдался
+<span class="cm"># Результат: 0 клиентов, разочарование</span></pre>
+            <pre class="code-block"><span class="cm"># С системой: структурированный подход</span>
+
+<span class="kw">Неделя 1:</span> анализ ниши + подготовка портфолио
+<span class="cm"># 3 готовых демо-проекта</span>
+
+<span class="kw">Неделя 2:</span> холодный аутрич (50 сообщений)
+<span class="cm"># Персонализация + кейсы из портфолио</span>
+
+<span class="kw">Неделя 3:</span> обработка ответов + звонки
+<span class="cm"># 3-5 горячих лидов</span>
+
+<span class="kw">Неделя 4:</span> закрытие сделок
+<span class="cm"># 1-2 клиента, средний чек 50-80 тыс. ₽</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       AGENTS — будущее
+       ============================================================ -->
+  <section id="portfolio">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-number"><span class="num">05</span> ПОРТФОЛИО</span>
+        <h2>Что вы создадите на курсе</h2>
+        <p>Не сертификат, а 3-5 готовых проектов, которые можно показать клиенту или работодателю.</p>
+      </div>
+      <div class="error-layout">
+        <div class="error-text">
+          <h3>Реальные проекты, а не абстрактные ДЗ</h3>
+          <p>
+            Каждый проект — решение реальной бизнес-задачи:
+          </p>
+          <ul style="margin-top: 8px; padding-left: 20px; line-height: 2;">
+            <li><strong>Бот поддержки</strong> для барбершопа — запись, напоминания, FAQ</li>
+            <li><strong>Генератор контента</strong> для маркетолога — посты, карусели, рассылки</li>
+            <li><strong>Ассистент продаж</strong> для агентства недвижимости — квалификация лидов</li>
+            <li><strong>Автоматизация отчётов</strong> для фрилансера — автосборка по часам</li>
+          </ul>
+          <p style="margin-top: 16px;">
+            <strong>Платформы:</strong> Botmother, Dify, Botpress, Make.com — все доступны без программирования.
+          </p>
+          <p class="example-label">▼ Сравните: до курса и после</p>
+        </div>
+        <div class="code-window">
+          <div class="code-titlebar">
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="code-dot" aria-hidden="true"></span>
+            <span class="filename">agent-examples.py</span>
+          </div>
+          <div class="code-tabs" role="tablist">
+            <button class="tab-btn active" role="tab" aria-selected="true">
+              Без агента <span class="tab-badge bad">✕</span>
+            </button>
+            <button class="tab-btn" role="tab" aria-selected="false">
+              С агентом <span class="tab-badge good">✓</span>
+            </button>
+          </div>
+          <div class="code-content">
+            <pre class="code-block active"><span class="cm"># Ты сам: ищешь, копируешь, вставляешь, проверяешь</span>
+
+<span class="kw">Задача:</span> «Найди 10 лидов в FinTech и напиши им»
+
+<span class="cm"># Ты:</span>
+<span class="dim">1. Открываешь LinkedIn</span>
+<span class="dim">2. Копируешь email-адреса</span>
+<span class="dim">3. Вбиваешь в CRM</span>
+<span class="dim">4. Пишешь письмо каждому</span>
+<span class="dim">5. Проверяешь ошибки</span>
+<span class="dim">6. Отправляешь</span>
+<span class="dim"># Время: 3-4 часа</span></pre>
+            <pre class="code-block"><span class="cm"># Агент: сам ищет, парсит, пишет, проверяет</span>
+
+<span class="kw">Агенту:</span> «Найди 10 лидов в FinTech и напиши им»
+
+<span class="cm"># Агент:</span>
+<span class="dim">1. Ищет в LinkedIn/ Crunchbase</span>
+<span class="dim">2. Парсит контакты</span>
+<span class="dim">3. Проверяет актуальность</span>
+<span class="dim">4. Генерирует персонализированные письма</span>
+<span class="dim">5. Отправляет через CRM</span>
+<span class="dim"># Ты: ждёшь готовый отчёт</span>
+<span class="cm"># Время: 15-20 минут</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       BRIDGE — что дальше
+       ============================================================ -->
+  <section id="bridge">
+    <div class="container content-narrow">
+      <div class="intro-text">
+        <p>
+          <strong>Честное сравнение:</strong>
+        </p>
+        <p>
+          <strong>Бесплатные ресурсы</strong> (документация OpenAI, курсы на DeepLearning.AI, статьи на Хабре):<br>
+          → Теория, базовые примеры, общие рекомендации<br>
+          → Подходят для начального понимания<br>
+          → Нет практики, нет обратной связи, нет портфолио
+        </p>
+        <p>
+          <strong>Этот курс:</strong><br>
+          → Структура: от базы до агентов за 7 недель<br>
+          → Практика: 3-5 готовых проектов для портфолио<br>
+          → Поддержка: чат с обратной связью от автора<br>
+          → Честность: без завышенных обещаний
+        </p>
+        <p>
+          <strong>Стоимость:</strong> уточняется (курс в процессе создания)<br>
+          <strong>Реальные затраты:</strong> VPN $2-5/мес + API $0-10/мес + Make.com $0-9/мес
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CTA — Application Form
+       ============================================================ -->
+  <section class="cta-section" id="cta">
+    <div class="container">
+      <h2>Курс в процессе создания</h2>
+      <p class="sub">
+        Мы формируем программу и контент. Пока ничего не продаём.
+        Оставьте контакты — сообщим первым, когда всё будет готово.
+        А пока — <a href="ai-course-portfolio/free-preview/index.html" style="color:var(--accent-green);">попробуйте бесплатный урок</a>.
+      </p>
+      <div class="cta-list">
+        <span class="cta-list-item">Бесплатный модуль-превью (уже доступен)</span>
+        <span class="cta-list-item">4 модуля: промптинг → агенты → автоматизация → продажи</span>
+        <span class="cta-list-item">3-5 проектов для портфолио</span>
+        <span class="cta-list-item">Поддержка автора</span>
+      </div>
+
+      <!-- Course Under Development Notice -->
+      <div class="course-notice" role="status" aria-live="polite" style="max-width:520px;margin:0 auto 32px;padding:24px 28px;background:rgba(255,189,46,0.06);border:1px solid rgba(255,189,46,0.2);border-radius:12px;text-align:left;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:20px;">🚧</span>
+          <strong style="font-family:var(--font-display);font-size:14px;color:var(--accent-yellow);">Курс в процессе создания</strong>
+        </div>
+        <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;margin:0;">
+          Мы только формируем программу и контент. Пока курс не продаётся — ничего не обещаем и ни за что не берём деньги.
+          Оставьте контакты, чтобы узнать первым, когда всё будет готово.
+        </p>
+      </div>
+
+      <!-- Application Form (pre-registration only) -->
+      <form id="applicationForm" class="application-form" data-backend="http://localhost:8080" method="POST">
+        <div class="form-group">
+          <label for="formName">Ваше имя *</label>
+          <input type="text" id="formName" name="name" required placeholder="Как к вам обращаться?" autocomplete="name">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="formPhone">Телефон</label>
+            <input type="tel" id="formPhone" name="phone" placeholder="+7 (999) 123-45-67" autocomplete="tel">
+          </div>
+          <div class="form-group">
+            <label for="formTelegram">Telegram</label>
+            <input type="text" id="formTelegram" name="telegram" placeholder="@username" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="formCourse">Что интересует?</label>
+          <select id="formCourse" name="course">
+            <option value="">Выберите вариант</option>
+            <option value="Промпт-инжиниринг">Промпт-инжиниринг</option>
+            <option value="AI-агенты">AI-агенты</option>
+            <option value="Автоматизация">Автоматизация</option>
+            <option value="Всё интересует">Всё интересует</option>
+            <option value="Просто хочу знать о запуске">Просто хочу знать о запуске</option>
+          </select>
+        </div>
+        <button type="submit" class="cta-button form-submit" id="submitBtn">
+          ✦ Узнаться первым
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <p class="form-status" id="formStatus" aria-live="polite"></p>
+        <p class="cta-note">Бесплатно — без карты, без обязательств. Или напишите сразу: <a href="https://t.me/YoulianVR" target="_blank" rel="noopener">@YoulianVR</a> в Telegram</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer>
+    <div class="container">
+      prompt.ing &nbsp;·&nbsp; AI-решения для бизнеса &nbsp;·&nbsp; 2026<br>
+      <span style="margin-top:8px;display:inline-block;">
+        <a href="mailto:youlianvr@gmail.com" style="color:var(--text-muted);">youlianvr@gmail.com</a>
+        &nbsp;·&nbsp;
+        <a href="https://t.me/YoulianVR" target="_blank" rel="noopener" style="color:var(--text-muted);">@YoulianVR</a>
+        &nbsp;·&nbsp;
+        <a href="https://t.me/TheWorld_Machine" target="_blank" rel="noopener" style="color:var(--text-muted);">@TheWorld_Machine</a>
+      </span>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       JAVASCRIPT
+       ============================================================ -->
+  <script>
+    (function() {
+      'use strict';
+
+      // — Scroll-triggered visibility
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        },
+        { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+      );
+
+      document.querySelectorAll('.error-section, #intro, #bridge, .cta-section, #portfolio').forEach((el) => {
+        observer.observe(el);
+      });
+
+      // — Nav border on scroll
+      const nav = document.getElementById('siteNav');
+      let lastScroll = 0;
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y > 20) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+        lastScroll = y;
+      }, { passive: true });
+
+      // — Interactive code tabs
+      document.querySelectorAll('.code-tabs').forEach((tabContainer) => {
+        const tabs = tabContainer.querySelectorAll('.tab-btn');
+        const codeWindow = tabContainer.closest('.code-window');
+        const blocks = codeWindow.querySelectorAll('.code-block');
+
+        tabs.forEach((btn, index) => {
+          btn.addEventListener('click', () => {
+            tabs.forEach((t) => {
+              t.classList.remove('active');
+              t.setAttribute('aria-selected', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+            blocks.forEach((b) => b.classList.remove('active'));
+            if (blocks[index]) blocks[index].classList.add('active');
+          });
+
+          // Keyboard: Enter / Space to activate
+          btn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              btn.click();
+            }
+          });
+        });
+      });
+
+      // — Application form
+      const form = document.getElementById('applicationForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusEl = document.getElementById('formStatus');
+
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = 'Отправка...';
+          statusEl.textContent = '';
+          statusEl.className = 'form-status';
+
+          const formData = new FormData(form);
+          const data = new URLSearchParams(formData).toString();
+
+          // URL бэкенда — из data-backend атрибута формы
+          const backend = form.dataset.backend || 'http://localhost:8080';
+          const formAction = backend + '/submit';
+
+          try {
+            const resp = await fetch(formAction, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: data
+            });
+
+            const result = await resp.json();
+
+            if (result.ok) {
+              statusEl.textContent = result.message || 'Контакт сохранён! Сообщим о запуске.';
+              statusEl.className = 'form-status success';
+              form.reset();
+            } else {
+              statusEl.textContent = result.error || 'Ошибка отправки';
+              statusEl.className = 'form-status error';
+            }
+          } catch (err) {
+            statusEl.textContent = 'Сервер недоступен. Напишите в Telegram: @YoulianVR';
+            statusEl.className = 'form-status error';
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '✦ Отправить заявку <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          }
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>
