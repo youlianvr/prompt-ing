@@ -436,7 +436,7 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════
-       STEP 1 — Регистрация
+       STEP 1 — Регистрация + Создание агента
        ═══════════════════════════════════════════════════════════ -->
   <section class="step" id="step-1">
     <div class="container">
@@ -444,22 +444,33 @@
         <span class="step-num">Шаг 1</span>
         <span class="step-time">3 мин</span>
       </div>
-      <h2>Регистрация в Coze</h2>
+      <h2>Регистрация и создание агента</h2>
+
+      <h3>1.1 Регистрация в Coze</h3>
       <ol>
         <li>Перейдите на <a href="https://www.coze.com" target="_blank" rel="noopener">coze.com</a></li>
-        <li>Нажмите <strong>«Sign Up»</strong> → выберите Google или GitHub</li>
-        <li>Подтвердите email</li>
-        <li>В левом меню выберите <strong>«Bots»</strong> → <strong>«Create Bot»</strong></li>
+        <li>Нажмите <strong>«+ Create»</strong> → выберите <strong>«Create agent»</strong></li>
+        <li>Выберите <strong>Standard</strong> (не AI-based — нам нужен контроль)</li>
+      </ol>
+
+      <h3>1.2 Заполняем форму создания</h3>
+      <ol>
+        <li><strong>Agent name</strong> — введите имя бота (например, «Помощник для бизнеса»)</li>
+        <li><strong>User message billing</strong> — оставьте включённым (пользователь платит за токены)</li>
+        <li><strong>Agent function description</strong> — напишите: «Отвечаю на вопросы клиента о наших услугах, ценах и записи. Работаю 24/7.»</li>
+        <li><strong>Workspace</strong> — оставьте «Monolith»</li>
+        <li><strong>Icon</strong> — выберите любой (потом можно поменять)</li>
+        <li>Нажмите <strong>«Confirm»</strong></li>
       </ol>
 
       <div class="callout yellow">
         <span class="callout-label yellow">Важно</span>
-        Если Coze требует VPN — используйте Dify (самостоятельный хостинг) или Botmother (российский сервис). Инструкция для Dify — в конце урока.
+        Если Coze требует VPN — используйте Dify (самостоятельный хостинг) или Botmother (российский сервис).
       </div>
 
       <div class="result-box">
         <h4>✓ Результат шага</h4>
-        <p>Вы в конструкторе ботов. Видите пустой чат и поле для ввода промпта.</p>
+        <p>Вы в конструкторе агента. Видите: <strong>Persona & Prompt</strong> (слева), <strong>Arrangement</strong> (посередине), <strong>Preview & Debug</strong> (справа).</p>
       </div>
     </div>
   </section>
@@ -476,6 +487,15 @@
       <h2>Создаём системный промпт</h2>
       <p>Это самая важная часть. Системный промпт — это <strong>«конституция»</strong> вашего бота. Он определяет: кто бот, о чём говорит, чего не делает.</p>
 
+      <h3>2.1 Откройте Persona & Prompt</h3>
+      <p>В левой части интерфейса нажмите <strong>«Persona & Prompt»</strong>. Откроется поле для ввода системного промпта.</p>
+
+      <div class="callout pink">
+        <span class="callout-label pink">Частая ошибка</span>
+        Если бот отвечает на вопросы не по теме (например, про погоду) — значит, промпт ещё не добавлен или он слишком слабый. Усильте правило: <em>«Отвечай ТОЛЬКО на вопросы о наших услугах.»</em>
+      </div>
+
+      <h3>2.2 Вставьте промпт</h3>
       <div class="prompt-box">
         <h4>📋 Скопируйте этот промпт и вставьте в Coze</h4>
         <textarea class="prompt-textarea" id="systemPrompt" readonly>Ты — AI-ассистент компании «{НАЗВАНИЕ ВАШЕЙ КОМПАНИИ}».
@@ -492,8 +512,8 @@
 - Частые вопросы клиентов}
 
 ## Правила
-1. Отвечай только на вопросы, связанные с нашим бизнесом
-2. Если вопрос не по теме — вежливо скажи, что это не входит в твою компетенцию
+1. Отвечай ТОЛЬКО на вопросы, связанные с нашим бизнесом
+2. Если вопрос не по теме — ответь: «Я помогаю только с вопросами о [ваша компания]. Задайте вопрос о наших услугах.»
 3. Не выдумывай информацию — если не знаешь, скажи «Уточню у коллег и вернусь с ответом»
 4. Не используй канцелярит — пиши простым языком
 5. В конце ответа предлагай следующий шаг (запись, звонок, сайт)
@@ -503,8 +523,11 @@
 - Без длинных списков (если список — максимум 3-4 пункта)
 - С конкретикой: цены, сроки, адреса</textarea>
         <button class="copy-btn" onclick="copyPrompt()">📋 Копировать</button>
-        <p class="prompt-hint">Нажмите «Копировать», затем вставьте в поле «System Prompt» в Coze</p>
+        <p class="prompt-hint">Нажмите «Копировать», затем вставьте в поле «Persona & Prompt» в Coze</p>
       </div>
+
+      <h3>2.3 Сохраните</h3>
+      <p>Нажмите <strong>Ctrl+S</strong> или кнопку сохранения. Промпт активируется сразу.</p>
 
       <div class="callout">
         <span class="callout-label purple">Как адаптировать под себя</span>
@@ -525,12 +548,8 @@
       <h2>Загружаем базу знаний</h2>
       <p>Системный промпт задаёт тон. Но боту нужна <strong>конкретная информация</strong> — прайс, FAQ, описание услуг. Загружаем её как документ.</p>
 
-      <ol>
-        <li>В Coze: <strong>«Knowledge»</strong> → <strong>«Create Knowledge»</strong></li>
-        <li>Выберите <strong>«Upload Files»</strong></li>
-        <li>Загрузите документ (PDF, TXT, DOCX) с информацией о бизнесе</li>
-        <li>В настройках бота: <strong>«Knowledge»</strong> → подключите созданную базу</li>
-      </ol>
+      <h3>3.1 Создайте документ</h3>
+      <p>Создайте текстовый файл (TXT, PDF или DOCX) с информацией о вашем бизнесе:</p>
 
       <div class="code-window">
         <div class="code-titlebar">
@@ -557,9 +576,23 @@
 <span class="str">Ответ: {опишите ваши услуги}.</span></div>
       </div>
 
+      <h3>3.2 Загрузите в Coze</h3>
+      <ol>
+        <li>В конструкторе агента найдите секцию <strong>Knowledge</strong> (посередине)</li>
+        <li>Разверните <strong>Text</strong> → нажмите <strong>+</strong></li>
+        <li>Выберите <strong>«Upload Files»</strong></li>
+        <li>Загрузите ваш документ (PDF, TXT, DOCX)</li>
+        <li>Дождитесь обработки (обычно 10-30 секунд)</li>
+      </ol>
+
       <div class="callout green">
         <span class="callout-label green">Совет</span>
-        Чем больше вопросов и ответов загрузите — тем умнее будет бот. Начните с 10-15 самых частых вопросов.
+        Чем больше вопросов и ответов загрузите — тем умнее будет бот. Начните с 10-15 самых частых вопросов. Можно также загрузить прайс-лист, описание услуг, правила возврата и т.д.
+      </div>
+
+      <div class="result-box">
+        <h4>✓ Результат шага</h4>
+        <p>База знаний подключена. Бот теперь может отвечать конкретными ценами и услугами.</p>
       </div>
     </div>
   </section>
@@ -574,30 +607,43 @@
         <span class="step-time">3 мин</span>
       </div>
       <h2>Тестируем бота</h2>
-      <p>Прежде чем запускать — протестируйте. Вот контрольные вопросы:</p>
+      <p>Прежде чем запускать — протестируйте. Используйте панель <strong>Preview & Debug</strong> (справа).</p>
 
+      <h3>4.1 Контрольные вопросы</h3>
       <ul class="checklist">
-        <li><span class="check-icon">?</span><strong>«Сколько стоит?»</strong> — бот должен назвать конкретную цену</li>
+        <li><span class="check-icon">?</span><strong>«Сколько стоит?»</strong> — бот должен назвать конкретную цену (или сказать «Уточню»)</li>
         <li><span class="check-icon">?</span><strong>«Как записаться?»</strong> — бот должен предложить способ связи</li>
         <li><span class="check-icon">?</span><strong>«Работаете в выходные?»</strong> — бот должен ответить по базе</li>
         <li><span class="check-icon">?</span><strong>«Какая погода завтра?»</strong> — бот должен ВЕЖЛИВО отказаться (не по теме)</li>
         <li><span class="check-icon">?</span><strong>«Напиши стихотворение»</strong> — бот должен отказаться (не по теме)</li>
       </ul>
 
+      <h3>4.2 Что делать, если бот ошибается</h3>
+
       <div class="callout pink">
-        <span class="callout-label pink">Частая ошибка</span>
-        Если бот отвечает на вопросы не по теме — усильте правило в системном промпте: <em>«Отвечай ТОЛЬКО на вопросы о наших услугах. На любые другие вопросы отвечай: "Я помогаю только с вопросами о [ваша компания]. Задайте вопрос о наших услугах."»</em>
+        <span class="callout-label pink">Бот отвечает на вопросы не по теме</span>
+        Усильте правило в системном промпте: <em>«Отвечай ТОЛЬКО на вопросы о наших услугах. На любые другие вопросы отвечай: "Я помогаю только с вопросами о [ваша компания]. Задайте вопрос о наших услугах."»</em>
+      </div>
+
+      <div class="callout yellow">
+        <span class="callout-label yellow">Бот выдумывает цены</span>
+        Значит, база знаний не подключена или в ней нет информации о ценах. Загрузите прайс-лист в <strong>Knowledge: Text</strong>.
+      </div>
+
+      <div class="callout">
+        <span class="callout-label purple">Бот отвечает слишком длинно</span>
+        Добавьте в промпт: <em>«Отвечай максимально кратко: 2-4 предложения. Без длинных списков.»</em>
       </div>
 
       <div class="result-box">
         <h4>✓ Результат шага</h4>
-        <p>Бот отвечает на вопросы из базы, отказывается от не-тематических, звучит естественно.</p>
+        <p>Бот отвечает на вопросы из базы, отказывается от не-тематических, звучит естественно и кратко.</p>
       </div>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════
-       STEP 5 — Публикация
+       STEP 5 — Публикация в Telegram
        ═══════════════════════════════════════════════════════════ -->
   <section class="step" id="step-5">
     <div class="container">
@@ -605,41 +651,48 @@
         <span class="step-num">Шаг 5</span>
         <span class="step-time">2 мин</span>
       </div>
-      <h2>Публикуем бота</h2>
-      <p>Бот работает. Теперь подключаем каналы:</p>
+      <h2>Публикуем бота в Telegram</h2>
+      <p>Бот работает. Теперь подключаем его к Telegram — самый быстрый способ.</p>
 
-      <div class="code-window">
-        <div class="code-titlebar">
-          <span class="code-dot" aria-hidden="true"></span>
-          <span class="code-dot" aria-hidden="true"></span>
-          <span class="code-dot" aria-hidden="true"></span>
-          <span class="filename">варианты-подключения</span>
-        </div>
-        <div class="code-block"><span class="cm"># Вариант 1: Telegram-бот (самый быстрый)</span>
-<span class="fn">Coze</span> → <span class="kw">Publish</span> → <span class="str">Telegram</span>
-→ Создайте бота через @BotFather
-→ Вставьте токен в Coze
-→ Бот работает в Telegram
+      <h3>5.1 Создайте бота через @BotFather</h3>
+      <ol>
+        <li>Откройте Telegram и найдите <strong>@BotFather</strong></li>
+        <li>Напишите <code>/newbot</code></li>
+        <li>Введите имя бота (например, «Помощник для бизнеса»)</li>
+        <li>Введите username (например, <code>my_business_bot</code>)</li>
+        <li>BotFather пришлёт <strong>токен</strong> — скопируйте его</li>
+      </ol>
 
-<span class="cm"># Вариант 2: Виджет на сайте</span>
-<span class="fn">Coze</span> → <span class="kw">Publish</span> → <span class="str">Web Widget</span>
-→ Скопируйте код
-→ Вставьте перед &lt;/body&gt; на вашем сайте
-
-<span class="cm"># Вариант 3: API (для разработчиков)</span>
-<span class="fn">Coze</span> → <span class="kw">Publish</span> → <span class="str">API</span>
-→ Используйте API-ключ для интеграции</div>
+      <div class="callout yellow">
+        <span class="callout-label yellow">Важно</span>
+        Токен выглядит так: <code>1234567890:ABCdefGHIjklMNOpqrsTUVwxyz</code>. Сохраните его — он понадобится для подключения к Coze.
       </div>
+
+      <h3>5.2 Подключите токен к Coze</h3>
+      <ol>
+        <li>В конструкторе агента нажмите <strong>«Publish»</strong> (справа вверху)</li>
+        <li>Выберите <strong>«Telegram»</strong></li>
+        <li>Вставьте токен от BotFather</li>
+        <li>Нажмите <strong>«Publish»</strong></li>
+      </ol>
+
+      <h3>5.3 Проверьте</h3>
+      <ol>
+        <li>Откройте Telegram</li>
+        <li>Найдите вашего бота по username</li>
+        <li>Напишите ему сообщение</li>
+        <li>Бот должен ответить! 🎉</li>
+      </ol>
 
       <div class="callout green">
         <span class="callout-label green">Готово!</span>
-        У вас есть работающий AI-ассистент. Он отвечает на вопросы клиентов 24/7, работает бесплатно и не требует программирования.
+        У вас есть работающий AI-ассистент в Telegram. Он отвечает на вопросы клиентов 24/7, работает бесплатно и не требует программирования.
       </div>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════
-       ИТОГ
+       ИТОГ + ЧЕКЛИСТ
        ═══════════════════════════════════════════════════════════ -->
   <section class="step" id="step-result">
     <div class="container">
@@ -649,11 +702,40 @@
       <h2>Что вы сделали за 20 минут</h2>
       <ul class="checklist">
         <li><span class="check-icon">✓</span>Зарегистрировались в Coze (бесплатно)</li>
-        <li><span class="check-icon">✓</span>Написали системный промпт для бота</li>
+        <li><span class="check-icon">✓</span>Создали агента (Standard mode)</li>
+        <li><span class="check-icon">✓</span>Написали системный промпт в Persona & Prompt</li>
         <li><span class="check-icon">✓</span>Загрузили базу знаний о бизнесе</li>
-        <li><span class="check-icon">✓</span>Протестировали и отладили ответы</li>
-        <li><span class="check-icon">✓</span>Опубликовали бота в Telegram или на сайте</li>
+        <li><span class="check-icon">✓</span>Протестировали в Preview & Debug</li>
+        <li><span class="check-icon">✓</span>Опубликовали бота в Telegram</li>
       </ul>
+
+      <h3 style="margin-top: 40px;">📋 Чеклист: всё ли работает?</h3>
+      <p>Пройдитесь по этому списку. Если всё ок — бот готов к работе.</p>
+
+      <ul class="checklist">
+        <li><span class="check-icon">?</span><strong>Бот отвечает на вопросы о бизнесе?</strong> — спросите «Сколько стоит?», «Как записаться?»</li>
+        <li><span class="check-icon">?</span><strong>Бот отказывается от не-тематических вопросов?</strong> — спросите «Какая погода?», «Напиши стихотворение»</li>
+        <li><span class="check-icon">?</span><strong>Бот не выдумывает информацию?</strong> — если не знает, должен сказать «Уточню»</li>
+        <li><span class="check-icon">?</span><strong>Бот отвечает кратко?</strong> — 2-4 предложения, без длинных списков</li>
+        <li><span class="check-icon">?</span><strong>Бот предлагает следующий шаг?</strong> — в конце ответа: «Запишитесь», «Позвоните», «Зайдите на сайт»</li>
+        <li><span class="check-icon">?</span><strong>Бот работает в Telegram?</strong> — откройте бота, напишите сообщение</li>
+        <li><span class="check-icon">?</span><strong>База знаний подключена?</strong> — бот знает цены, услуги, контакты</li>
+      </ul>
+
+      <div class="callout green">
+        <span class="callout-label green">Если всё ок</span>
+        Поздравляю! У вас есть <strong>работающий AI-ассистент</strong>, который отвечает на вопросы клиентов 24/7. Это ваш первый проект для портфолио.
+      </div>
+
+      <div class="callout yellow">
+        <span class="callout-label yellow">Если что-то не так</span>
+        <ul style="margin-top: 8px; padding-left: 20px;">
+          <li>Бот отвечает на всё → усильте промпт (правило «ТОЛЬКО по теме»)</li>
+          <li>Бот выдумывает цены → загрузите прайс-лист в Knowledge</li>
+          <li>Бот не работает в Telegram → проверьте токен в Publish → Telegram</li>
+          <li>Бот отвечает слишком длинно → добавьте в промпт «2-4 предложения»</li>
+        </ul>
+      </div>
 
       <div class="callout">
         <span class="callout-label purple">Что дальше?</span>
